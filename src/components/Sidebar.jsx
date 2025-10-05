@@ -13,6 +13,7 @@ import {
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import GroupIcon from "@mui/icons-material/Group";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const drawerWidth = 240;
 
@@ -27,6 +28,12 @@ const Sidebar = () => {
       text: "Dashboard",
       path: "/",
       icon: <DashboardIcon />,
+      roles: ["User", "Manager", "Admin"],
+    },
+    {
+      text: "Thông tin cá nhân",
+      path: "/profile",
+      icon: <AccountCircleIcon />,
       roles: ["User", "Manager", "Admin"],
     },
     {

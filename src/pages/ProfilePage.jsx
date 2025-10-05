@@ -1,0 +1,109 @@
+import { useState, useEffect } from "react";
+import { getMyProfile, updateMyProfile } from "../api/userService";
+import { Typography, CircularProgress, Alert } from "@mui/material";
+import styles from "./ProfilePage.module.scss";
+
+const ProfilePage = () => {
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    middleName: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getMyProfile();
+        setProfile(response.data.data);
+      } catch (err) {
+        // <-- Lỗi được bắt ở đây
+        // === SỬA LỖI 1: SỬ DỤNG BIẾN 'err' ===
+        console.error("Lỗi khi tải profile:", err);
+        setError("Không thể tải thông tin cá nhân.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    try {
+      await updateMyProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        middleName: profile.middleName,
+      });
+      setSuccess("Cập nhật thông tin thành công!");
+    } catch (err) {
+      // <-- Lỗi được bắt ở đây
+      // === SỬA LỖI 2: SỬ DỤNG BIẾN 'err' ===
+      console.error("Lỗi khi cập nhật profile:", err);
+      setError("Cập nhật thất bại. Vui lòng thử lại.");
+    }
+  };
+
+  if (loading) return <CircularProgress />;
+
+  return (
+    <div className={styles.pageContainer}>
+      <Typography variant="h4" className={styles.title}>
+        Thông tin cá nhân
+      </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+      <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Họ</label>
+          <input
+            name="lastName"
+            value={profile.lastName || ""}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Tên đệm</label>
+          <input
+            name="middleName"
+            value={profile.middleName || ""}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Tên</label>
+          <input
+            name="firstName"
+            value={profile.firstName || ""}
+            onChange={handleChange}
+            className={styles.input}
+          />
+        </div>
+        <button type="submit" className={styles.button}>
+          Lưu thay đổi
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default ProfilePage;

@@ -1,5 +1,3 @@
-// src/context/AuthProvider.jsx
-
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { login as loginService } from "../api/authService";
@@ -8,12 +6,12 @@ import { AuthContext } from "./AuthContext";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const updateUserFromToken = (token) => {
     try {
       const decodedUser = jwtDecode(token);
       if (decodedUser.exp * 1000 > Date.now()) {
-        // --- PHẦN CẬP NHẬT: ĐỌC TÊN CLAIM NGẮN GỌN ---
         setUser({
           id: decodedUser.sub,
           username: decodedUser.name,
@@ -21,7 +19,6 @@ export const AuthProvider = ({ children }) => {
             ? decodedUser.role
             : [decodedUser.role],
         });
-        // --- KẾT THÚC CẬP NHẬT ---
         setAuthHeader(token);
       } else {
         localStorage.removeItem("token");
@@ -37,14 +34,16 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       updateUserFromToken(token);
     }
+    setLoading(false);
   }, []);
 
+  // === PHẦN SỬA LỖI 1: ĐIỀN ĐẦY ĐỦ NỘI DUNG HÀM LOGIN ===
   const login = async (usernameOrEmail, password) => {
     try {
       const response = await loginService(usernameOrEmail, password);
       const { accessToken } = response.data.data;
       localStorage.setItem("token", accessToken);
-      updateUserFromToken(accessToken); // Dùng hàm chung để cập nhật
+      updateUserFromToken(accessToken);
       return true;
     } catch (error) {
       console.error("Login failed:", error);
@@ -52,13 +51,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // === PHẦN SỬA LỖI 2: ĐIỀN ĐẦY ĐỦ NỘI DUNG HÀM LOGOUT ===
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    clearAuthHeader();
+    clearAuthHeader(); // Sử dụng hàm đã import
   };
 
-  const value = { user, login, logout };
+  const value = { user, loading, login, logout };
 
+  // Sửa lỗi cú pháp ở đây: Phải là AuthContext.Provider
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

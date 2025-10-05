@@ -5,8 +5,8 @@ import {
   deleteTodo,
   updateTodo,
 } from "../api/todoService";
-import { Typography, CircularProgress } from "@mui/material";
-import EditTodoModal from "../components/EditTodoModal"; // Import modal
+import { Typography, CircularProgress, Pagination, Box } from "@mui/material";
+import EditTodoModal from "../components/EditTodoModal";
 import styles from "./Todos.module.scss";
 
 const Todos = () => {
@@ -14,66 +14,77 @@ const Todos = () => {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // State cho modal
   const [editingTodo, setEditingTodo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // State cho phân trang
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
   useEffect(() => {
-    const fetchTodos = async () => {
+    const fetchTodos = async (currentPage) => {
+      setLoading(true);
       try {
-        const response = await getTodos();
-        setTodos(response.data);
+        const response = await getTodos(currentPage);
+        setTodos(response.data.items || []);
+        setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to fetch todos", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchTodos();
-  }, []);
+    fetchTodos(page);
+  }, [page]); // Chạy lại khi 'page' thay đổi
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   const handleAddTodo = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
     try {
-      const newTodo = {
-        title,
-        description: "New todo description",
-        priority: 1,
-      };
-      const response = await createTodo(newTodo);
-      // Thêm todo mới vào đầu danh sách để hiển thị ngay lập tức
-      setTodos([response.data, ...todos]);
+      await createTodo({ title, description: "New todo" });
       setTitle("");
+      // Sau khi thêm, quay về trang 1 để thấy item mới nhất
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // Nếu đang ở trang 1, fetch lại để cập nhật
+        const response = await getTodos(1);
+        setTodos(response.data.items || []);
+        setTotalPages(response.data.totalPages || 0);
+      }
     } catch (error) {
       console.error("Failed to add todo", error);
     }
   };
 
+  // ... các hàm handleDeleteTodo, handleOpenEditModal, handleCloseModal, handleSaveTodo giữ nguyên ...
   const handleDeleteTodo = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa công việc này?")) {
       try {
         await deleteTodo(id);
-        setTodos(todos.filter((todo) => todo.id !== id));
+        // Fetch lại trang hiện tại để cập nhật sau khi xóa
+        const response = await getTodos(page);
+        setTodos(response.data.items || []);
+        setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to delete todo", error);
       }
     }
   };
-
   const handleOpenEditModal = (todo) => {
     setEditingTodo(todo);
     setIsModalOpen(true);
   };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingTodo(null);
   };
-
   const handleSaveTodo = async (updatedTodo) => {
     try {
-      // Chuẩn bị dữ liệu để gửi lên API (chỉ gửi các trường cần thiết)
       const todoDataToUpdate = {
         id: updatedTodo.id,
         title: updatedTodo.title,
@@ -89,8 +100,6 @@ const Todos = () => {
       console.error("Failed to update todo", error);
     }
   };
-
-  if (loading) return <CircularProgress />;
 
   return (
     <div className={styles.pageContainer}>
@@ -110,27 +119,42 @@ const Todos = () => {
         </button>
       </form>
 
-      <ul className={styles.todoList}>
-        {todos.map((todo) => (
-          <li key={todo.id} className={styles.todoItem}>
-            <span>{todo.title}</span>
-            <div>
-              <button
-                onClick={() => handleOpenEditModal(todo)}
-                className={styles.editButton}
-              >
-                Sửa
-              </button>
-              <button
-                onClick={() => handleDeleteTodo(todo.id)}
-                className={styles.deleteButton}
-              >
-                Xóa
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <ul className={styles.todoList}>
+            {todos.map((todo) => (
+              <li key={todo.id} className={styles.todoItem}>
+                <span>{todo.title}</span>
+                <div>
+                  <button
+                    onClick={() => handleOpenEditModal(todo)}
+                    className={styles.editButton}
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTodo(todo.id)}
+                    className={styles.deleteButton}
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Box>
+        </>
+      )}
 
       <EditTodoModal
         open={isModalOpen}

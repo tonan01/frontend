@@ -5,10 +5,11 @@ import Dashboard from './pages/Dashboard';
 import Todos from './pages/Todos';
 import UserManagement from './pages/UserManagement';
 import Unauthorized from './pages/Unauthorized';
+
+import MainLayout from './components/MainLayout'; // Import layout mới
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
 
-// Định nghĩa vai trò
 const ROLES = {
     User: 'User',
     Manager: 'Manager',
@@ -23,15 +24,18 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Private Routes for all authenticated users */}
-            <Route element={<PrivateRoute />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/todos" element={<Todos />} />
-            </Route>
+            {/* --- WRAP PRIVATE ROUTES WITH MAINLAYOUT --- */}
+            <Route element={<MainLayout />}>
+                {/* Private Routes for all authenticated users */}
+                <Route element={<PrivateRoute />}>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/todos" element={<Todos />} />
+                </Route>
 
-            {/* Role-based Routes */}
-            <Route element={<RoleBasedRoute allowedRoles={[ROLES.Admin, ROLES.Manager]} />}>
-                <Route path="/admin/users" element={<UserManagement />} />
+                {/* Role-based Routes */}
+                <Route element={<RoleBasedRoute allowedRoles={[ROLES.Admin, ROLES.Manager]} />}>
+                    <Route path="/admin/users" element={<UserManagement />} />
+                </Route>
             </Route>
             
             {/* Fallback Route */}

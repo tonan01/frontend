@@ -1,0 +1,13 @@
+// src/styles/main.scss
+
+// Dùng @forward để "chuyển tiếp" các biến cho các file khác có thể @use
+@forward "./variables";
+
+body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

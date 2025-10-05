@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { getUsers, deleteUser } from "../api/userService";
 import { useAuth } from "../hooks/useAuth";
+import { Typography, CircularProgress } from "@mui/material";
+import styles from "./UserManagement.module.scss"; // Import SCSS module
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -11,7 +13,8 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         const response = await getUsers();
-        setUsers(response.data.items);
+        // API trả về data trong pagedResult, nên cần lấy `items`
+        setUsers(response.data.items || []);
       } catch (error) {
         console.error("Failed to fetch users", error);
       } finally {
@@ -37,18 +40,20 @@ const UserManagement = () => {
     }
   };
 
-  if (loading) return <p>Loading users...</p>;
+  if (loading) return <CircularProgress />;
 
   return (
-    <div>
-      <h2>User Management</h2>
-      <table>
+    <div className={styles.pageContainer}>
+      <Typography variant="h4" className={styles.title}>
+        Quản lý Người dùng
+      </Typography>
+      <table className={styles.userTable}>
         <thead>
           <tr>
-            <th>Username</th>
+            <th>Tên đăng nhập</th>
             <th>Email</th>
-            <th>Full Name</th>
-            <th>Actions</th>
+            <th>Họ và Tên</th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +63,13 @@ const UserManagement = () => {
               <td>{user.email}</td>
               <td>{user.fullName}</td>
               <td>
-                <button onClick={() => handleDelete(user.id)}>Delete</button>
+                <button
+                  onClick={() => handleDelete(user.id)}
+                  className={styles.deleteButton}
+                  disabled={user.id === currentUser.id} // Vô hiệu hóa nút xóa cho chính mình
+                >
+                  Xóa
+                </button>
               </td>
             </tr>
           ))}

@@ -1,0 +1,90 @@
+// src/pages/LoginPage.module.scss
+
+// Dùng @use để import và đặt tên cho module (ví dụ: 'vars')
+@use "../styles/variables" as vars;
+@use "sass:color"; // Import module color của SASS
+
+.loginPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: vars.$background-color;
+}
+
+.loginContainer {
+  padding: 40px;
+  background-color: vars.$white-color;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.title {
+  margin-bottom: 24px;
+  color: vars.$primary-color;
+  font-weight: 500;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid vars.$border-color;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+
+  &:focus {
+    outline: none;
+    border-color: vars.$primary-color;
+    box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.2);
+  }
+}
+
+.button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: vars.$primary-color;
+  color: vars.$white-color;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    // Thay thế darken() bằng color.adjust()
+    background-color: color.adjust(vars.$primary-color, $lightness: -10%);
+  }
+}
+
+.error {
+  color: vars.$error-color;
+  margin-top: 16px;
+}
+
+.linkText {
+  margin-top: 20px;
+  a {
+    color: vars.$primary-color;
+    text-decoration: none;
+    font-weight: bold;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

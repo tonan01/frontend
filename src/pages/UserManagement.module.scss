@@ -1,0 +1,52 @@
+@use "../styles/variables" as vars;
+@use "sass:color";
+
+.pageContainer {
+  padding: 24px;
+  background-color: vars.$white-color;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+}
+
+.title {
+  color: vars.$text-color;
+  margin-bottom: 24px;
+}
+
+.userTable {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  thead {
+    background-color: #f9fafb;
+    th {
+      font-weight: 600;
+    }
+  }
+}
+
+.deleteButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: vars.$secondary-color;
+  color: vars.$white-color;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+}

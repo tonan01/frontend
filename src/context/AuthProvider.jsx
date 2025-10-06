@@ -14,26 +14,17 @@ export const AuthProvider = ({ children }) => {
   const updateUserFromToken = (token) => {
     try {
       const decodedUser = jwtDecode(token);
-
-      // Dòng console.log này bạn có thể xóa đi sau khi đã sửa lỗi thành công
-      console.log("Nội dung token đã giải mã:", decodedUser);
-
       if (decodedUser.exp * 1000 > Date.now()) {
         const roles = Array.isArray(decodedUser.role)
           ? decodedUser.role
           : [decodedUser.role];
-
-        // --- BẮT ĐẦU SỬA LỖI ---
-        // Cập nhật để đọc đúng key từ token
         setUser({
-          id: decodedUser.sub || decodedUser.nameid, // Lấy ID từ 'sub' hoặc 'nameid'
-          username: decodedUser.unique_name || decodedUser.name, // Lấy username từ 'unique_name' hoặc 'name'
+          id: decodedUser.sub || decodedUser.nameid,
+          username: decodedUser.unique_name || decodedUser.name,
           fullName: decodedUser.fullName,
-          email: decodedUser.email, // Lấy thêm email
+          email: decodedUser.email,
           roles: roles,
         });
-        // --- KẾT THÚC SỬA LỖI ---
-
         setAuthHeader(token);
       } else {
         localStorage.removeItem("token");

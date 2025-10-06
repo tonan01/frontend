@@ -1,17 +1,18 @@
-// src/main.jsx
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider.jsx";
-import "./styles/main.scss"; // << THÊM DÒNG NÀY
+import { NotificationProvider } from "./context/NotificationProvider.jsx"; // Thêm dòng này
+import "./styles/main.scss";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

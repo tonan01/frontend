@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getUsers, deleteUser } from "../api/userService";
 import { useAuth } from "../hooks/useAuth";
+import { useNotification } from "../hooks/useNotification"; // 1. Import hook
 import { Typography, CircularProgress, Pagination, Box } from "@mui/material";
 import styles from "./UserManagement.module.scss";
 
@@ -8,8 +9,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
-
-  // State cho phân trang
+  const { showNotification } = useNotification(); // 2. Lấy hàm thông báo
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -22,12 +22,13 @@ const UserManagement = () => {
         setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to fetch users", error);
+        showNotification("Lỗi khi tải danh sách người dùng.", "error"); // Thông báo lỗi
       } finally {
         setLoading(false);
       }
     };
     fetchUsers(page);
-  }, [page]); // Chạy lại mỗi khi 'page' thay đổi
+  }, [page]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -35,25 +36,26 @@ const UserManagement = () => {
 
   const handleDelete = async (userId) => {
     if (userId === currentUser.id) {
-      alert("Bạn không thể xóa chính mình!");
+      showNotification("Bạn không thể xóa chính mình!", "warning"); // Thông báo cảnh báo
       return;
     }
     if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
       try {
         await deleteUser(userId);
-        // Sau khi xóa, fetch lại dữ liệu của trang hiện tại để cập nhật
+        showNotification("Xóa người dùng thành công!"); // Thông báo thành công
         const response = await getUsers(page);
         setUsers(response.data.items || []);
         setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to delete user", error);
-        alert("Xóa người dùng thất bại.");
+        showNotification("Xóa người dùng thất bại.", "error"); // Thông báo lỗi
       }
     }
   };
 
   return (
     <div className={styles.pageContainer}>
+      {/* ... Giữ nguyên phần JSX ... */}
       <Typography variant="h4" className={styles.title}>
         Quản lý Người dùng
       </Typography>

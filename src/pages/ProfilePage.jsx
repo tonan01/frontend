@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { getMyProfile, updateMyProfile } from "../api/userService";
+import { useNotification } from "../hooks/useNotification"; // 1. Import hook
 import { Typography, CircularProgress, Alert } from "@mui/material";
 import styles from "./ProfilePage.module.scss";
 
 const ProfilePage = () => {
-  // Xóa middleName khỏi state
   const [profile, setProfile] = useState({ firstName: "", lastName: "" });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // const [error, setError] = useState(""); // Xóa state cũ
+  // const [success, setSuccess] = useState(""); // Xóa state cũ
+  const { showNotification } = useNotification(); // 2. Lấy hàm thông báo
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -17,7 +18,7 @@ const ProfilePage = () => {
         setProfile(response.data.data);
       } catch (err) {
         console.error("Lỗi khi tải profile:", err);
-        setError("Không thể tải thông tin cá nhân.");
+        showNotification("Không thể tải thông tin cá nhân.", "error"); // Thông báo lỗi
       } finally {
         setLoading(false);
       }
@@ -31,18 +32,15 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     try {
-      // Xóa middleName khỏi dữ liệu gửi đi
       await updateMyProfile({
         firstName: profile.firstName,
         lastName: profile.lastName,
       });
-      setSuccess("Cập nhật thông tin thành công!");
+      showNotification("Cập nhật thông tin thành công!"); // Thông báo thành công
     } catch (err) {
       console.error("Lỗi khi cập nhật profile:", err);
-      setError("Cập nhật thất bại. Vui lòng thử lại.");
+      showNotification("Cập nhật thất bại. Vui lòng thử lại.", "error"); // Thông báo lỗi
     }
   };
 
@@ -53,16 +51,7 @@ const ProfilePage = () => {
       <Typography variant="h4" className={styles.title}>
         Thông tin cá nhân
       </Typography>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
+      {/* 3. Xóa các Alert cũ */}
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
           <label className={styles.label}>Họ</label>
@@ -73,7 +62,6 @@ const ProfilePage = () => {
             className={styles.input}
           />
         </div>
-        {/* Xóa trường nhập Tên đệm */}
         <div className={styles.formGroup}>
           <label className={styles.label}>Tên</label>
           <input

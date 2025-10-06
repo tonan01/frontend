@@ -5,6 +5,7 @@ import {
   deleteTodo,
   updateTodo,
 } from "../api/todoService";
+import { useNotification } from "../hooks/useNotification"; // 1. Import hook
 import { Typography, CircularProgress, Pagination, Box } from "@mui/material";
 import EditTodoModal from "../components/EditTodoModal";
 import styles from "./Todos.module.scss";
@@ -13,13 +14,11 @@ const Todos = () => {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [editingTodo, setEditingTodo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // State cho phân trang
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const { showNotification } = useNotification(); // 2. Lấy hàm thông báo
 
   useEffect(() => {
     const fetchTodos = async (currentPage) => {
@@ -30,12 +29,13 @@ const Todos = () => {
         setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to fetch todos", error);
+        showNotification("Lỗi khi tải danh sách công việc.", "error"); // Thông báo lỗi
       } finally {
         setLoading(false);
       }
     };
     fetchTodos(page);
-  }, [page]); // Chạy lại khi 'page' thay đổi
+  }, [page]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -47,42 +47,45 @@ const Todos = () => {
     try {
       await createTodo({ title, description: "New todo" });
       setTitle("");
-      // Sau khi thêm, quay về trang 1 để thấy item mới nhất
+      showNotification("Thêm công việc thành công!"); // Thông báo thành công
       if (page !== 1) {
         setPage(1);
       } else {
-        // Nếu đang ở trang 1, fetch lại để cập nhật
         const response = await getTodos(1);
         setTodos(response.data.items || []);
         setTotalPages(response.data.totalPages || 0);
       }
     } catch (error) {
       console.error("Failed to add todo", error);
+      showNotification("Thêm công việc thất bại.", "error"); // Thông báo lỗi
     }
   };
 
-  // ... các hàm handleDeleteTodo, handleOpenEditModal, handleCloseModal, handleSaveTodo giữ nguyên ...
   const handleDeleteTodo = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa công việc này?")) {
       try {
         await deleteTodo(id);
-        // Fetch lại trang hiện tại để cập nhật sau khi xóa
+        showNotification("Xóa công việc thành công!"); // Thông báo thành công
         const response = await getTodos(page);
         setTodos(response.data.items || []);
         setTotalPages(response.data.totalPages || 0);
       } catch (error) {
         console.error("Failed to delete todo", error);
+        showNotification("Xóa công việc thất bại.", "error"); // Thông báo lỗi
       }
     }
   };
+
   const handleOpenEditModal = (todo) => {
     setEditingTodo(todo);
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingTodo(null);
   };
+
   const handleSaveTodo = async (updatedTodo) => {
     try {
       const todoDataToUpdate = {
@@ -94,15 +97,18 @@ const Todos = () => {
         priority: updatedTodo.priority,
       };
       await updateTodo(updatedTodo.id, todoDataToUpdate);
+      showNotification("Cập nhật công việc thành công!"); // Thông báo thành công
       setTodos(todos.map((t) => (t.id === updatedTodo.id ? updatedTodo : t)));
       handleCloseModal();
     } catch (error) {
       console.error("Failed to update todo", error);
+      showNotification("Cập nhật công việc thất bại.", "error"); // Thông báo lỗi
     }
   };
 
   return (
     <div className={styles.pageContainer}>
+      {/* ... Giữ nguyên phần JSX ... */}
       <Typography variant="h4" className={styles.title}>
         Quản lý Công việc
       </Typography>

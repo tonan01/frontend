@@ -1,7 +1,8 @@
-// src/api/todoService.js
-import apiClient from "./axiosConfig";
+// --- BẮT ĐẦU CẬP NHẬT ---
+// Thay đổi import để sử dụng named import
+import { apiClient } from "./axiosConfig";
+// --- KẾT THÚC CẬP NHẬT ---
 
-// --- CẬP NHẬT HÀM NÀY ---
 export const getTodos = (page = 1, pageSize = 10) => {
   return apiClient.get(`/todos?page=${page}&pageSize=${pageSize}`);
 };

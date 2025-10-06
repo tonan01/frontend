@@ -4,11 +4,8 @@ import { Typography, CircularProgress, Alert } from "@mui/material";
 import styles from "./ProfilePage.module.scss";
 
 const ProfilePage = () => {
-  const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    middleName: "",
-  });
+  // Xóa middleName khỏi state
+  const [profile, setProfile] = useState({ firstName: "", lastName: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,8 +16,6 @@ const ProfilePage = () => {
         const response = await getMyProfile();
         setProfile(response.data.data);
       } catch (err) {
-        // <-- Lỗi được bắt ở đây
-        // === SỬA LỖI 1: SỬ DỤNG BIẾN 'err' ===
         console.error("Lỗi khi tải profile:", err);
         setError("Không thể tải thông tin cá nhân.");
       } finally {
@@ -39,15 +34,13 @@ const ProfilePage = () => {
     setError("");
     setSuccess("");
     try {
+      // Xóa middleName khỏi dữ liệu gửi đi
       await updateMyProfile({
         firstName: profile.firstName,
         lastName: profile.lastName,
-        middleName: profile.middleName,
       });
       setSuccess("Cập nhật thông tin thành công!");
     } catch (err) {
-      // <-- Lỗi được bắt ở đây
-      // === SỬA LỖI 2: SỬ DỤNG BIẾN 'err' ===
       console.error("Lỗi khi cập nhật profile:", err);
       setError("Cập nhật thất bại. Vui lòng thử lại.");
     }
@@ -80,15 +73,7 @@ const ProfilePage = () => {
             className={styles.input}
           />
         </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Tên đệm</label>
-          <input
-            name="middleName"
-            value={profile.middleName || ""}
-            onChange={handleChange}
-            className={styles.input}
-          />
-        </div>
+        {/* Xóa trường nhập Tên đệm */}
         <div className={styles.formGroup}>
           <label className={styles.label}>Tên</label>
           <input
